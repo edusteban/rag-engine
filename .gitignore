@@ -1,0 +1,18 @@
+# Virtual environment
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# IDE
+.vscode/
+
+# Environment variables
+.env
+
+# Chroma database
+data/chroma_db/
+
+# Documents
+data/documents/
