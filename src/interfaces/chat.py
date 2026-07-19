@@ -1,10 +1,12 @@
-from src.generation.generator import generate
+from src.generation.generator import stream_generate
+from src.generation.llm import get_llm
 
 
 def chat():
+    llm = get_llm()
     print("RAG Engine ready")
     print("Type 'exit' to quit\n")
-    
+
     while True:
         question = input("> ")
         
@@ -13,10 +15,9 @@ def chat():
 
         if question.lower() == "exit":
             break
+        
 
+        for token in stream_generate(question, llm):
+            print(token, end="", flush=True)
 
-        answer = generate(question)
-
-        print("\nAnswer:")
-        print(answer)
-        print()
+        print("\n")
