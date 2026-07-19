@@ -3,7 +3,7 @@ from langchain_chroma import Chroma
 
 from src.ingestion.loader import load_documents
 from src.ingestion.splitter import split_documents
-from src.vectorstore.chroma import get_vectorstore
+from src.vectorstore.chroma import get_vectorstore, delete_documents, add_documents
 from src.ingestion.models import VectorstoreChanges
 
 def ingest() -> None:
@@ -24,15 +24,20 @@ def ingest() -> None:
 def _update_vectorstore(vectorstore: Chroma, chunks: list[Document]) -> None:
     changes = _get_vectorstore_changes(vectorstore, chunks)
     
-    _delete_documents(
+    delete_documents(
         vectorstore, 
         changes.to_delete | changes.to_update
     )
 
-    _add_documents(
+    documents_to_add = [
+        chunk
+        for chunk in chunks
+        if chunk.metadata["source"] in changes.to_add | changes.to_update
+    ]
+
+    add_documents(
         vectorstore,
-        chunks,
-        changes.to_add | changes.to_update
+        documents_to_add
     )
 
     print("\nIngestion summary:")
@@ -69,28 +74,6 @@ def _get_vectorstore_changes(
         to_add=set(to_add),
         to_delete=set(to_delete),
         to_update=to_update
-    )
-
-def _delete_documents(vectorstore: Chroma, sources: set[str]) -> None:
-    for source in sources:
-        vectorstore.delete(
-            where={
-                "source": source
-            }
-        )
-
-def _add_documents(vectorstore: Chroma, chunks: list[Document], sources: set[str]) -> None:
-    chunks_to_add = [
-        chunk
-        for chunk in chunks
-        if chunk.metadata["source"] in sources
-    ]
-
-    if not chunks_to_add:
-        return
-    
-    vectorstore.add_documents(
-        chunks_to_add
     )
 
 

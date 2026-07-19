@@ -15,4 +15,5 @@ __pycache__/
 data/chroma_db/
 
 # Documents
-data/documents/
+data/documents/*
+!data/documents/.gitkeep
