@@ -9,22 +9,27 @@ from collections.abc import Generator
 def generate(question: str, llm: ChatOllama) -> str:
     documents = retrieve(question)
 
-    messages = build_prompt(context_documents=documents, question=question)
+    prompt = build_prompt(context_documents=documents, question=question)
 
-    response = llm.invoke(messages)
+    response = llm.invoke(prompt)
 
     return response.content
 
-def stream_generate(question: str, llm: ChatOllama) -> Generator:
+def stream_generate(question: str, llm: ChatOllama, debug: bool) -> Generator:
     print("Searching documents...", flush=True)
     documents = retrieve(question)
 
     print("Generating answer...", flush=True)
 
-    messages = build_prompt(
+    prompt = build_prompt(
         context_documents=documents,
         question=question
     )
 
-    for chunk in llm.stream(messages):
+    if debug:
+        print("\n========== PROMPT ==========")
+        print(prompt.to_string())
+        print("==============================\n")
+
+    for chunk in llm.stream(prompt):
         yield chunk.content
