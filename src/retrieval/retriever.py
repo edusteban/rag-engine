@@ -1,9 +1,9 @@
 from langchain_core.documents import Document
 
 from src.vectorstore.chroma import get_vectorstore
+from config import RETRIEVER_TOP_K
 
-
-def retrieve(query: str, k: int = 5) -> list[Document]:
+def retrieve(query: str) -> list[Document]:
     vectorstore = get_vectorstore()
 
     if vectorstore._collection.count() == 0:
@@ -13,7 +13,7 @@ def retrieve(query: str, k: int = 5) -> list[Document]:
     
     results = vectorstore.similarity_search(
         query,
-        k=k
+        k=RETRIEVER_TOP_K
     )
 
     return results

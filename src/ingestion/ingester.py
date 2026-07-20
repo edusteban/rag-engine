@@ -1,7 +1,7 @@
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
 
-from src.ingestion.loader import load_documents
+from src.ingestion.document_loader import load_documents
 from src.ingestion.splitter import split_documents
 from src.vectorstore.chroma import get_vectorstore, delete_documents, add_documents
 from src.ingestion.models import VectorstoreChanges
