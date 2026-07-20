@@ -3,7 +3,7 @@ from langchain_chroma import Chroma
 
 from src.ingestion.document_loader import load_documents
 from src.ingestion.splitter import split_documents
-from src.vectorstore.chroma import get_vectorstore, delete_documents, add_documents
+from src.vectorstore.chroma import get_current_config, get_vectorstore, vectorstore_config_changed, delete_documents, add_documents
 from src.ingestion.models import VectorstoreChanges
 
 def ingest() -> None:
@@ -13,13 +13,32 @@ def ingest() -> None:
         raise RuntimeError(
             "No documents found to ingest."
         )
-        
-    chunks = split_documents(documents)
-
+    
     vectorstore = get_vectorstore()
+
+    if vectorstore_config_changed(vectorstore):
+        _handle_vectorstore_config_change(vectorstore)
+
+    chunks = split_documents(documents)
 
     _update_vectorstore(vectorstore, chunks)
     
+def _handle_vectorstore_config_change(vectorstore: Chroma) -> None:
+    old = vectorstore._collection.metadata
+    new = get_current_config()
+
+    changes = "\n".join(
+        f"{key}: {old.get(key)} -> {new.get(key)}"
+        for key in old.keys() | new.keys()
+        if old.get(key) != new.get(key)
+    )
+
+    raise RuntimeError(
+        "\n\nVectorstore configuration changed.\n"
+        f"Changes:\n{changes}\n"
+        "Run reset before ingesting again or "
+        "restore the previous configuration."
+    )
 
 def _update_vectorstore(vectorstore: Chroma, chunks: list[Document]) -> None:
     changes = _get_vectorstore_changes(vectorstore, chunks)

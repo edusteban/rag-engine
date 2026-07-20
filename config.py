@@ -13,7 +13,7 @@ LLM_MODEL = "qwen3:8b"
 LLM_TEMPERATURE = 0
 
 # Splitting
-CHUNK_SIZE = 1000
+CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 200
 
 # Retrieval
